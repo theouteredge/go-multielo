@@ -1,6 +1,7 @@
 package MultiElo
 
 import (
+	"math"
 	"sort"
 
 	u "github.com/rjNemo/underscore"
@@ -56,4 +57,26 @@ func (s *Elo) CalculateActualScores(n int, positions []int) []float32 {
 		func(x int) int { return x },
 		func(x Tuple[int, float32]) int { return x.Left },
 		func(x Tuple[int, []Tuple[int, float32]]) float32 { return x.Right[0].Right })
+}
+
+func (s *Elo) CalculateExpectedScores(ratings []float32) []float32 {
+	var diffMX = u.Map(ratings, func(x float32) []float32 {
+		return u.Map(ratings, func(y float32) float32 {
+			return y - x
+		})
+	})
+
+	var logMX = u.Map(diffMX, func(diffs []float32) []float32 {
+		return u.Map(diffs, func(x float32) float32 {
+			return float32(1 / (1 + math.Pow(float64(s.log), float64(x)/float64(s.d))))
+		})
+	})
+
+	logMX = DiagonalFill(logMX, func(_ float32) float32 { return 0 })
+	var expected = u.Map(logMX, func(x []float32) float32 { return u.Sum(x) })
+
+	var n = float32(len(expected))
+	var denom = n * (n - 1) / 2
+
+	return u.Map(expected, func(x float32) float32 { return x / denom })
 }

@@ -72,3 +72,11 @@ func Sum[T any, R constraints.Ordered](list []T, selector func(T) R) (sum R) {
 
 	return sum
 }
+
+func DiagonalFill[T constraints.Ordered](list [][]T, f func(T) T) [][]T {
+	for i := 0; i < len(list); i++ {
+		list[i][i] = f(list[i][i])
+	}
+
+	return list
+}
