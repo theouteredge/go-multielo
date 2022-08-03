@@ -23,33 +23,31 @@ func Create(base float32) func(int) []float32 {
 	}
 }
 
-func Liner(n int) []float32 {
+func Liner(n int) (scores []float32) {
 	var nf = float32(n)
-	var postions = make([]float32, n)
-
 	for p := 1; p <= n; p++ {
 		pf := float32(p)
-		postions[p] = (nf - pf) / (nf * (nf - 1) / 2)
+		scores = append(scores, (nf-pf)/(nf*(nf-1)/2))
 	}
 
-	return postions
+	return scores
 }
 
 func Exponential(n int, base float32) []float32 {
 	var nf = float64(n)
-	var output = make([]float32, n)
+	var output = make([]float32, 0)
 
 	for p := 1; p <= n; p++ {
 		pf := float64(p)
-		output[p] = float32(math.Pow(float64(base), nf-pf) - 1)
+		output = append(output, float32(math.Pow(float64(base), nf-pf)-1))
 	}
 
-	sum := float32(len(output))
+	length := float32(len(output))
 	return us.Map(output, func(x float32) float32 {
 		if x == 0 {
 			return x
 		}
 
-		return x / sum
+		return x / length
 	})
 }
