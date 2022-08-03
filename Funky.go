@@ -10,6 +10,15 @@ type Tuple[L, R any] struct {
 	Right R
 }
 
+func Range(start int, end int) []int {
+	result := make([]int, end)
+	for i := start; i <= end; i++ {
+		result[i] = i
+	}
+
+	return result
+}
+
 func Zip[L any, R any](left []L, right []R) []Tuple[L, R] {
 	var shortest = 0
 	if len(left) < len(right) {
