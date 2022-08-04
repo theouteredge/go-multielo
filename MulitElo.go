@@ -12,37 +12,56 @@ type Elo struct {
 	scoring         func(int) []float32
 }
 
-func (s *Elo) Initalise() {
+func (s *Elo) initalise() {
 	if s.scoring == nil {
 		s.scoring = Create(s.base)
 	}
 }
 
-func (s *Elo) CalculateRating(ratings []float32, order []int) []float32 {
-	var scores = s.scoring(len(ratings))
+func (s *Elo) CalculateRating(ratings []float32, positions []int) []float32 {
+	s.initalise()
+	var n = len(ratings)
 
-	//todo: replace with actual results
-	return scores
-}
-
-func (s *Elo) CalculateActualScores(n int, positions []int) []float32 {
-	// we need to preserve the finishing positions, so we can return the
-	// scores back in the same order as we got them
-	var standings = make([]int, len(positions))
+	// if we din't receive finishing positions for our rating then its already in order 1..n
 	if positions == nil {
-		standings = Range(1, n)
-	} else {
-		copy(standings, positions)
-		sort.Ints(standings)
+		positions = Range(1, n)
 	}
 
-	scores := s.scoring(n)
+	var expectedScores = s.CalculateExpectedScores(ratings)
+	var actualScores = s.CalculateActualScores(n, positions)
+	var scaleFactor = s.k * (float32(n) - 1)
+
+	var adjustments = u.Map(
+		Zip(actualScores, expectedScores),
+		func(t Tuple[float32, float32]) float32 {
+			return scaleFactor * (t.Left - t.Right)
+		})
+
+	return u.Map(
+		Zip(ratings, adjustments),
+		func(t Tuple[float32, float32]) float32 {
+			return t.Left + t.Right
+		})
+}
+
+/*
+return ratings
+	.Zip(adjustments)
+	.Select(x => x.First + x.Second);
+*/
+
+func (s *Elo) CalculateActualScores(n int, positions []int) []float32 {
+	order := make([]int, n)
+	copy(order, positions)
+	sort.Ints(order)
 
 	// we need to detrmin if their where any ties, if so we will need to sum
-	// the tied scores togther and then distribte them out evenly to the tied
-	// players
+	// the tied scores togther and then distribte them out evenly to the tied players
+	// i.e. positions [2,2,1,3] for scores [0.166667, 0.333333, 0.5, 0.0]
+	//                            would be [0.25, 0.25, 0.5, 0.0]
 
-	var joined = Zip(standings, scores)
+	scores := s.scoring(n)
+	var joined = Zip(order, scores)
 	var s1 = u.GroupBy(joined, func(x Tuple[int, float32]) int {
 		return x.Left
 	})

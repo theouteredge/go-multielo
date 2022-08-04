@@ -5,9 +5,29 @@ import (
 	"testing"
 )
 
+func Test_MultiElo_Can_Calculate_Basic_Two_Player_Liner(t *testing.T) {
+	elo := Elo{k: 32, d: 400, base: 1, log: 10, scoring: nil}
+	var result = elo.CalculateRating([]float32{1000, 1000}, nil)
+	var want = []float32{1016, 984}
+
+	if !reflect.DeepEqual(result, want) {
+		t.Errorf("Expected to get %v but we got %v instead", want, result)
+	}
+}
+
+func Test_MultiElo_Can_Calculate_Basic_Two_Player_Exponential(t *testing.T) {
+	elo := Elo{k: 32, d: 400, base: 1.5, log: 10, scoring: nil}
+	var result = elo.CalculateRating([]float32{1200, 1000}, nil)
+	var want = []float32{1207.6881, 992.3119}
+
+	if !reflect.DeepEqual(result, want) {
+		t.Errorf("Expected to get %v but we got %v instead", want, result)
+	}
+}
+
 func Test_MultiElo_CalculateActualScores_Works(t *testing.T) {
 	elo := Elo{k: 32, d: 400, base: 1, log: 10, scoring: nil}
-	elo.Initalise()
+	elo.initalise()
 
 	positions := []int{2, 4, 1, 3}
 
@@ -24,7 +44,7 @@ func Test_MultiElo_CalculateActualScores_Works(t *testing.T) {
 
 func Test_MultiElo_CalculateActualScores_Works_With_Ties(t *testing.T) {
 	elo := Elo{k: 32, d: 400, base: 1, log: 10, scoring: nil}
-	elo.Initalise()
+	elo.initalise()
 
 	positions := []int{2, 3, 1, 2}
 
@@ -39,9 +59,26 @@ func Test_MultiElo_CalculateActualScores_Works_With_Ties(t *testing.T) {
 	}
 }
 
+func Test_MultiElo_CalculateActualScores_Works_With_Exponential_Scoring(t *testing.T) {
+	elo := Elo{k: 32, d: 400, base: 1.5, log: 10, scoring: nil}
+	elo.initalise()
+
+	positions := []int{2, 3, 1, 2}
+
+	var scores = elo.CalculateActualScores(4, positions)
+	if len(scores) != 4 {
+		t.Errorf("Expected to get 4 scores but we got %v", len(scores))
+	}
+
+	want := []float32{0.21212121212121213, 0, 0.5757575757575758, 0.21212121212121213}
+	if !reflect.DeepEqual(scores, want) {
+		t.Errorf("Expected to recieve %v but we got %v instead", want, scores)
+	}
+}
+
 func Test_MultiElo_CalculateExpectedScores_Works(t *testing.T) {
 	elo := Elo{k: 32, d: 400, base: 1, log: 10, scoring: nil}
-	elo.Initalise()
+	elo.initalise()
 
 	ratings := []float32{1200, 1000, 900}
 	var scores = elo.CalculateExpectedScores(ratings)

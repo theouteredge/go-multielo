@@ -42,12 +42,12 @@ func Exponential(n int, base float32) []float32 {
 		output = append(output, float32(math.Pow(float64(base), nf-pf)-1))
 	}
 
-	length := float32(len(output))
+	sum := us.Sum(output)
 	return us.Map(output, func(x float32) float32 {
 		if x == 0 {
 			return x
 		}
 
-		return x / length
+		return x / sum
 	})
 }

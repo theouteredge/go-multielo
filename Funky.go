@@ -10,10 +10,9 @@ type Tuple[L, R any] struct {
 	Right R
 }
 
-func Range(start int, end int) []int {
-	result := make([]int, end)
+func Range(start int, end int) (result []int) {
 	for i := start; i <= end; i++ {
-		result[i] = i
+		result = append(result, i)
 	}
 
 	return result
