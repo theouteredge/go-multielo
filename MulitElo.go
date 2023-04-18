@@ -1,4 +1,4 @@
-package MultiElo
+package go-multielo
 
 import (
 	"math"
