@@ -1,4 +1,4 @@
-module MultiElo
+module go-multielo
 
 go 1.18
 
