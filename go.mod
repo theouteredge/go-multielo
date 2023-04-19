@@ -1,4 +1,4 @@
-module go-multielo
+module github.com/theouteredge/go-multielo
 
 go 1.18
 
