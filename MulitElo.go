@@ -13,8 +13,8 @@ type Elo struct {
 }
 
 func (s *Elo) initalise() {
-	if s.scoring == nil {
-		s.scoring = Create(s.base)
+	if s.Scoring == nil {
+		s.Scoring = Create(s.Base)
 	}
 }
 
@@ -29,7 +29,7 @@ func (s *Elo) CalculateRating(ratings []float32, positions []int) []float32 {
 
 	var expectedScores = s.CalculateExpectedScores(ratings)
 	var actualScores = s.CalculateActualScores(n, positions)
-	var scaleFactor = s.k * (float32(n) - 1)
+	var scaleFactor = s.K * (float32(n) - 1)
 
 	var adjustments = u.Map(
 		Zip(actualScores, expectedScores),
@@ -60,7 +60,7 @@ func (s *Elo) CalculateActualScores(n int, positions []int) []float32 {
 	// i.e. positions [2,2,1,3] for scores [0.166667, 0.333333, 0.5, 0.0]
 	//                            would be [0.25, 0.25, 0.5, 0.0]
 
-	scores := s.scoring(n)
+	scores := s.Scoring(n)
 	var joined = Zip(order, scores)
 	var s1 = u.GroupBy(joined, func(x Tuple[int, float32]) int {
 		return x.Left
@@ -87,7 +87,7 @@ func (s *Elo) CalculateExpectedScores(ratings []float32) []float32 {
 
 	var logMX = u.Map(diffMX, func(diffs []float32) []float32 {
 		return u.Map(diffs, func(x float32) float32 {
-			return float32(1 / (1 + math.Pow(float64(s.log), float64(x)/float64(s.d))))
+			return float32(1 / (1 + math.Pow(float64(s.Log), float64(x)/float64(s.D))))
 		})
 	})
 
