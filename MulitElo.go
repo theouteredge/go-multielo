@@ -8,8 +8,8 @@ import (
 )
 
 type Elo struct {
-	k, d, base, log float32
-	scoring         func(int) []float32
+	K, D, Base, Log float32
+	Scoring         func(int) []float32
 }
 
 func (s *Elo) initalise() {
